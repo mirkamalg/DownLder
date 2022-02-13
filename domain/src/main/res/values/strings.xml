@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="err_connection_error_occurred">Connection error occurred!</string>
+    <string name="err_unauthorized">Unauthorized!</string>
+    <string name="err_unknown">Unknown error occurred!</string>
+    <string name="err_bad_request">Bad request!</string>
+    <string name="err_server">Server error occurred!</string>
+</resources>

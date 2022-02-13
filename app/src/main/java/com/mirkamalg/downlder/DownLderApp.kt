@@ -3,6 +3,7 @@ package com.mirkamalg.downlder
 import android.app.Application
 import android.content.pm.PackageManager
 import com.mirkamalg.downlder.di.appModules
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -21,6 +22,7 @@ class DownLderApp : Application() {
         })
 
         startKoin {
+            androidContext(this@DownLderApp)
             properties(
                 mapOf(
                     "youtubeApiKey" to applicationContext.packageManager

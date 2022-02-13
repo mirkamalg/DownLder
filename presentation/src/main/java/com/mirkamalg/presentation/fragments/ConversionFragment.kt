@@ -3,8 +3,6 @@ package com.mirkamalg.presentation.fragments
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
-import com.google.android.material.snackbar.Snackbar
 import com.mirkamalg.presentation.databinding.FragmentConversionBinding
 import com.mirkamalg.presentation.viewmodel.ConversionEffect
 import com.mirkamalg.presentation.viewmodel.ConversionState
@@ -42,7 +40,7 @@ class ConversionFragment :
             effect.observe(viewLifecycleOwner) {
                 when (it) {
                     is ConversionEffect.Error -> {
-                        Snackbar.make(textViewTest, it.message.toString(), LENGTH_SHORT).show()
+                        showSnackBar(it.message)
                     }
                 }
             }

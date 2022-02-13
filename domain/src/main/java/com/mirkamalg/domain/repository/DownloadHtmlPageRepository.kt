@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document
  * Created by Mirkamal Gasimov on 12.02.2022.
  */
 
-interface DownloadHtmlPageRepository {
+interface DownloadHtmlPageRepository : BaseRepository {
 
     suspend fun getDownloadHtmlPage(
         type: String,

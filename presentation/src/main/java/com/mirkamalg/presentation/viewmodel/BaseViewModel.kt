@@ -5,11 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mirkamalg.domain.exceptions.*
 import com.mirkamalg.domain.usecase.BaseUseCase
+import com.mirkamalg.domain.usecase.CommonEffect
 import com.mirkamalg.domain.usecase.RequestLifecycleBlock
 import com.mirkamalg.presentation.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 /**
  * Created by Mirkamal Gasimov on 12.02.2022.
@@ -22,6 +27,9 @@ abstract class BaseViewModel<S, E> : ViewModel() {
 
     private val _effect = SingleLiveEvent<E>()
     val effect: LiveData<E> = _effect
+
+    private val _commonEffect = SingleLiveEvent<CommonEffect>()
+    val commonEffect: LiveData<CommonEffect> = _commonEffect
 
     @SuppressLint("NullSafeMutableLiveData")
     fun postState(state: S) = _state.postValue(state)
@@ -52,7 +60,7 @@ abstract class BaseViewModel<S, E> : ViewModel() {
                 }
                 onError = {
                     Timber.e(it)
-                    request.onError?.invoke(it) ?: handleError(it)
+                    request.onError?.invoke(it) ?: handleError(it.toActualException())
                 }
             }
             useCase.execute(input, requestLifecycleBlock)
@@ -60,7 +68,29 @@ abstract class BaseViewModel<S, E> : ViewModel() {
     }
 
     private fun handleError(t: Throwable) {
+        when (t) {
+            is ConnectionException -> {
+                _commonEffect.postValue(CommonEffect.ConnectionExceptionEffect)
+            }
+            is ServerException -> {
+                _commonEffect.postValue(CommonEffect.ServerExceptionEffect)
+            }
+            is UnauthorizedException -> {
+                _commonEffect.postValue(CommonEffect.UnauthorizedExceptionEffect)
+            }
+            is UnknownException -> {
+                _commonEffect.postValue(CommonEffect.UnknownExceptionEffect)
+            }
+        }
+    }
 
+    private fun Throwable.toActualException() = when (this) {
+        is SocketException,
+        is SocketTimeoutException,
+        is UnknownHostException,
+        -> ConnectionException
+        is BaseNetworkException -> this
+        else -> UnknownException
     }
 
 }

@@ -1,6 +1,7 @@
 package com.mirkamalg.data.dataSource.remote.videoMetaData
 
 import com.mirkamalg.data.dataSource.remote.videoMetaData.model.VideoMetaDataDto
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -14,6 +15,6 @@ interface VideoMetaDataRemoteDataSource {
     suspend fun getVideoMetaData(
         @Query("id") videoId: String,
         @Query("part") parts: String
-    ): VideoMetaDataDto
+    ): Response<VideoMetaDataDto>
 
 }
