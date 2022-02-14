@@ -34,6 +34,14 @@ abstract class BaseViewModel<S, E> : ViewModel() {
     @SuppressLint("NullSafeMutableLiveData")
     fun postState(state: S) = _state.postValue(state)
 
+    /**
+     * For immediate state updates
+     */
+    @SuppressLint("NullSafeMutableLiveData")
+    fun setState(state: S) {
+        _state.value = state
+    }
+
     @SuppressLint("NullSafeMutableLiveData")
     fun postEffect(effect: E) = _effect.postValue(effect)
 

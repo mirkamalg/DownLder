@@ -61,4 +61,7 @@ dependencies {
 
     //Coil
     implementation("io.coil-kt:coil:1.4.0")
+
+    //Chrome tabs
+    implementation "androidx.browser:browser:1.4.0"
 }

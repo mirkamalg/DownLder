@@ -1,5 +1,8 @@
 package com.mirkamalg.presentation.viewmodel
 
+import android.content.Context
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import com.mirkamalg.domain.utils.Regexes
@@ -19,14 +22,16 @@ class ConversionViewModel(
     fun getVideoMetaData(videoUrl: String) {
         fun postInvalidUrlEffect() = postEffect(ConversionEffect.InvalidUrl)
 
+        state.value?.let {
+            val new = it.copy(searchedUrl = videoUrl)
+            setState(new)
+        }
         if (Regexes.youtubeUrlRegex.matches(videoUrl).not()) {
             postInvalidUrlEffect()
             return
         }
-        val videoId =
-            Regexes.youtubeUrlRegex.matchEntire(videoUrl)?.groups?.findLast {
-                it?.value?.length == 11
-            }?.value
+        val videoId = extractVideoIdFromUrl(videoUrl)
+
         if (videoId == null) {
             postInvalidUrlEffect()
             return
@@ -40,23 +45,56 @@ class ConversionViewModel(
             }
             onSuccess = { entity ->
                 state.value?.let {
-                    postState(it.copy(loading = false, videoMetaDataEntity = entity))
+                    postState(
+                        it.copy(
+                            loading = false,
+                            videoMetaDataEntity = entity,
+                            searchedUrl = videoUrl
+                        )
+                    )
                 }
             }
             onError = { t ->
                 state.value?.let {
-                    postState(it.copy(loading = false, videoMetaDataEntity = null))
+                    postState(
+                        it.copy(
+                            loading = false,
+                            videoMetaDataEntity = null,
+                            searchedUrl = ""
+                        )
+                    )
                     postEffect(ConversionEffect.Error(t.message))
                 }
             }
         }
     }
 
+    fun openDownloadPage(context: Context) {
+        state.value?.searchedUrl?.let { youtubeUrl ->
+            extractVideoIdFromUrl(youtubeUrl)?.let { videoId ->
+                CustomTabsIntent.Builder().build().launchUrl(
+                    context, Uri.parse(
+                        videoIdToDownloadPageUrl(videoId)
+                    )
+                )
+            }
+        }
+    }
+
+    private fun extractVideoIdFromUrl(videoUrl: String) =
+        Regexes.youtubeUrlRegex.matchEntire(videoUrl)?.groups?.findLast {
+            it?.value?.length == 11
+        }?.value
+
+    private fun videoIdToDownloadPageUrl(videoId: String) =
+        "https://api.vevioz.com/@api/button/mp3/$videoId"
+
 }
 
 data class ConversionState(
     var loading: Boolean = false,
-    var videoMetaDataEntity: VideoMetaDataEntity? = null
+    var videoMetaDataEntity: VideoMetaDataEntity? = null,
+    var searchedUrl: String = ""
 )
 
 sealed class ConversionEffect {

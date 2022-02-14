@@ -8,6 +8,7 @@ import coil.load
 import com.mirkamalg.domain.utils.applyToAll
 import com.mirkamalg.presentation.R
 import com.mirkamalg.presentation.databinding.FragmentConversionBinding
+import com.mirkamalg.presentation.utils.text
 import com.mirkamalg.presentation.viewmodel.ConversionEffect
 import com.mirkamalg.presentation.viewmodel.ConversionState
 import com.mirkamalg.presentation.viewmodel.ConversionViewModel
@@ -47,13 +48,13 @@ class ConversionFragment :
     }
 
     private fun FragmentConversionBinding.setListeners() {
-        textInputLayoutUrl.editText?.setOnEditorActionListener { view, actionId, _ ->
+        textInputLayoutUrl.editText?.setOnEditorActionListener { view, _, _ ->
             val editText = view as EditText
             viewModel.getVideoMetaData(editText.text.toString())
             false
         }
         fabDownload.setOnClickListener {
-
+            viewModel.openDownloadPage(it.context)
         }
     }
 
@@ -65,6 +66,7 @@ class ConversionFragment :
                     isVisible = videoMetaDataEntity != null
                 }
                 if (videoMetaDataEntity == null) fabDownload.hide() else fabDownload.show()
+                textInputLayoutUrl.text = searchedUrl
                 imageViewThumbnail.load(videoMetaDataEntity?.thumbnailUrl)
                 textViewTitle.text = videoMetaDataEntity?.title
                 textViewDescription.text = videoMetaDataEntity?.description
