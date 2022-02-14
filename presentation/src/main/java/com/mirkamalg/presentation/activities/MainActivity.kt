@@ -32,6 +32,7 @@ class MainActivity : BaseActivity(), NavHostOwner {
             navHostFragment.navController,
             AppBarConfiguration(topLevelDestinationIds = setOf(R.id.conversionFragment))
         )
+        binding.bottomNavigationView.setupWithNavController(navHostFragment.navController)
         lifecycleScope.launchWhenStarted {
             navHostFragment.navController.currentBackStackEntryFlow.collectLatest(::onDestinationChanged)
         }

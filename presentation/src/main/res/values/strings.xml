@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">DownLder</string>
+    <string name="msg_conversion">Conversion</string>
+    <string name="title_history">History</string>
+    <string name="title_search">Search</string>
+    <string name="hint_youtube_url">Youtube URL…</string>
+    <string name="err_invalid_url">Invalid URL</string>
 </resources>

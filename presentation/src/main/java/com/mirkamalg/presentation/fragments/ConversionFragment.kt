@@ -2,7 +2,11 @@ package com.mirkamalg.presentation.fragments
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.view.isVisible
+import coil.load
+import com.mirkamalg.domain.utils.applyToAll
+import com.mirkamalg.presentation.R
 import com.mirkamalg.presentation.databinding.FragmentConversionBinding
 import com.mirkamalg.presentation.viewmodel.ConversionEffect
 import com.mirkamalg.presentation.viewmodel.ConversionState
@@ -20,29 +24,50 @@ class ConversionFragment :
         get() = FragmentConversionBinding::inflate
     override val onBind: FragmentConversionBinding.() -> Unit
         get() = {
-            viewModel.getVideoMetaData("3O1_3zBUKM8")
-
-            textViewTest.setOnClickListener {
-                viewModel.getVideoMetaData("3O1_3zBUKM8")
-            }
+            setListeners()
         }
     override val viewModel: ConversionViewModel by viewModel()
 
     override fun ConversionViewModel.onObserve() {
         binding?.apply {
             state.observe(viewLifecycleOwner) {
-                it?.apply {
-                    progressBar.isVisible = loading
-                    textViewTest.isVisible = videoMetaDataEntity != null
-                    textViewTest.text = videoMetaDataEntity.toString()
-                }
+                syncState(it)
             }
             effect.observe(viewLifecycleOwner) {
                 when (it) {
                     is ConversionEffect.Error -> {
                         showSnackBar(it.message)
                     }
+                    is ConversionEffect.InvalidUrl -> {
+                        textInputLayoutUrl.error = getString(R.string.err_invalid_url)
+                    }
                 }
+            }
+        }
+    }
+
+    private fun FragmentConversionBinding.setListeners() {
+        textInputLayoutUrl.editText?.setOnEditorActionListener { view, actionId, _ ->
+            val editText = view as EditText
+            viewModel.getVideoMetaData(editText.text.toString())
+            false
+        }
+        fabDownload.setOnClickListener {
+
+        }
+    }
+
+    private fun syncState(state: ConversionState?) {
+        binding?.apply {
+            state?.apply {
+                progressBar.isVisible = loading
+                applyToAll(imageViewThumbnail, textViewTitle, textViewDescription) {
+                    isVisible = videoMetaDataEntity != null
+                }
+                if (videoMetaDataEntity == null) fabDownload.hide() else fabDownload.show()
+                imageViewThumbnail.load(videoMetaDataEntity?.thumbnailUrl)
+                textViewTitle.text = videoMetaDataEntity?.title
+                textViewDescription.text = videoMetaDataEntity?.description
             }
         }
     }

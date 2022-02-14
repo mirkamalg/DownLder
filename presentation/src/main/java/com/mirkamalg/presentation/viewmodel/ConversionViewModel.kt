@@ -2,6 +2,7 @@ package com.mirkamalg.presentation.viewmodel
 
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
+import com.mirkamalg.domain.utils.Regexes
 
 /**
  * Created by Mirkamal Gasimov on 13.02.2022.
@@ -15,7 +16,22 @@ class ConversionViewModel(
         postState(ConversionState())
     }
 
-    fun getVideoMetaData(videoId: String) {
+    fun getVideoMetaData(videoUrl: String) {
+        fun postInvalidUrlEffect() = postEffect(ConversionEffect.InvalidUrl)
+
+        if (Regexes.youtubeUrlRegex.matches(videoUrl).not()) {
+            postInvalidUrlEffect()
+            return
+        }
+        val videoId =
+            Regexes.youtubeUrlRegex.matchEntire(videoUrl)?.groups?.findLast {
+                it?.value?.length == 11
+            }?.value
+        if (videoId == null) {
+            postInvalidUrlEffect()
+            return
+        }
+
         launch(getVideoDataUseCase, videoId) {
             onStart = {
                 state.value?.let {
@@ -45,4 +61,5 @@ data class ConversionState(
 
 sealed class ConversionEffect {
     data class Error(val message: String?) : ConversionEffect()
+    object InvalidUrl : ConversionEffect()
 }

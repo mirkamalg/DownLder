@@ -1,6 +1,7 @@
 package com.mirkamalg.presentation.di
 
 import com.mirkamalg.presentation.viewmodel.ConversionViewModel
+import com.mirkamalg.presentation.viewmodel.HistoryViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -14,6 +15,10 @@ val presentationModule = module {
         ConversionViewModel(
             getVideoDataUseCase = get()
         )
+    }
+
+    viewModel {
+        HistoryViewModel()
     }
 
 }
