@@ -23,4 +23,11 @@ val domainModule = module {
         )
     }
 
+    factory {
+        ConversionUseCase.DownloadContentPageUseCase(
+            coroutineContext = get(named(IO_DISPATCHER)),
+            downloadContentRepository = get()
+        )
+    }
+
 }

@@ -12,7 +12,12 @@ class VideoMetaDataRepositoryImpl(private val videoMetaDataRemoteDataSource: Vid
     VideoMetaDataRepository {
 
     override suspend fun getVideoMetaData(videoId: String, parts: String): VideoMetaDataEntity {
-        return handleResponse(videoMetaDataRemoteDataSource.getVideoMetaData(videoId, parts)).entity
+        return handleResponse(
+            videoMetaDataRemoteDataSource.getVideoMetaData(
+                videoId,
+                parts
+            )
+        ).entity(videoId)
     }
 
 

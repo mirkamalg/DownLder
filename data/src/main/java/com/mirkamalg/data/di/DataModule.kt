@@ -1,13 +1,13 @@
 package com.mirkamalg.data.di
 
 import com.mirkamalg.data.BuildConfig
-import com.mirkamalg.data.dataSource.remote.downloadHtmlPage.DownloadHtmlPageRemoteDataSource
+import com.mirkamalg.data.dataSource.remote.downloadHtmlPage.DownloadContentRemoteDataSource
 import com.mirkamalg.data.dataSource.remote.videoMetaData.VideoMetaDataRemoteDataSource
-import com.mirkamalg.data.repository.DownloadHtmlPageRepositoryImpl
+import com.mirkamalg.data.repository.DownloadContentRepositoryImpl
 import com.mirkamalg.data.repository.VideoMetaDataRepositoryImpl
 import com.mirkamalg.data.utils.DocumentCall
 import com.mirkamalg.data.utils.YoutubeApiKeyInterceptor
-import com.mirkamalg.domain.repository.DownloadHtmlPageRepository
+import com.mirkamalg.domain.repository.DownloadContentRepository
 import com.mirkamalg.domain.repository.VideoMetaDataRepository
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
@@ -99,7 +99,7 @@ val dataModule = module {
         YoutubeApiKeyInterceptor(getProperty("youtubeApiKey"))
     }
 
-    single(named(HTML_CONVERTER_FACTORY)) {
+    single<Converter.Factory>(named(HTML_CONVERTER_FACTORY)) {
         object : Converter.Factory() {
             override fun responseBodyConverter(
                 type: Type,
@@ -114,7 +114,7 @@ val dataModule = module {
         }
     }
 
-    single(named(HTML_CALL_ADAPTER_FACTORY)) {
+    single<CallAdapter.Factory>(named(HTML_CALL_ADAPTER_FACTORY)) {
         object : CallAdapter.Factory() {
             override fun get(
                 returnType: Type,
@@ -132,15 +132,15 @@ val dataModule = module {
     }
 
     single {
-        get<Retrofit>(named(RETROFIT_DOWNLOADER)).create(DownloadHtmlPageRemoteDataSource::class.java)
+        get<Retrofit>(named(RETROFIT_DOWNLOADER)).create(DownloadContentRemoteDataSource::class.java)
     }
 
     single {
         get<Retrofit>(named(RETROFIT_YOUTUBE_DATA)).create(VideoMetaDataRemoteDataSource::class.java)
     }
 
-    factory<DownloadHtmlPageRepository> {
-        DownloadHtmlPageRepositoryImpl(get())
+    factory<DownloadContentRepository> {
+        DownloadContentRepositoryImpl(get())
     }
 
     factory<VideoMetaDataRepository> {

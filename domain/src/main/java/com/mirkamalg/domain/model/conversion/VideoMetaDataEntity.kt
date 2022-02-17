@@ -12,4 +12,5 @@ data class VideoMetaDataEntity(
     val thumbnailUrl: String,
     val viewCount: String,
     val likeCount: String,
+    val videoId: String
 )

@@ -14,21 +14,21 @@ data class VideoMetaDataDto(
     val items: List<Item>? = null,
     val pageInfo: PageInfo? = null
 ) {
-    val entity: VideoMetaDataEntity
-        get() {
-            val snippet = items?.get(0)?.snippet
-            val contentDetails = items?.get(0)?.contentDetails
-            val stats = items?.get(0)?.statistics
-            return VideoMetaDataEntity(
-                snippet?.title.toString(),
-                snippet?.description.toString(),
-                snippet?.channelTitle.toString(),
-                contentDetails?.duration?.replace("PS", "", true).toString(),
-                snippet?.thumbnails?.high?.url.toString(),
-                stats?.viewCount.toString(),
-                stats?.likeCount.toString()
-            )
-        }
+    fun entity(videoId: String): VideoMetaDataEntity {
+        val snippet = items?.get(0)?.snippet
+        val contentDetails = items?.get(0)?.contentDetails
+        val stats = items?.get(0)?.statistics
+        return VideoMetaDataEntity(
+            snippet?.title.toString(),
+            snippet?.description.toString(),
+            snippet?.channelTitle.toString(),
+            contentDetails?.duration?.replace("PS", "", true).toString(),
+            snippet?.thumbnails?.high?.url.toString(),
+            stats?.viewCount.toString(),
+            stats?.likeCount.toString(),
+            videoId
+        )
+    }
 }
 
 @JsonClass(generateAdapter = true)

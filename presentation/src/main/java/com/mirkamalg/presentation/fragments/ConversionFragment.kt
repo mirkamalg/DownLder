@@ -68,7 +68,15 @@ class ConversionFragment :
                 applyToAll(imageViewThumbnail, textViewTitle, textViewDescription) {
                     isVisible = videoMetaDataEntity != null
                 }
-                if (videoMetaDataEntity == null) fabDownload.hide() else fabDownload.show()
+                if (videoMetaDataEntity == null) {
+                    fabDownload.hide()
+                    fabDownload.setOnClickListener(null)
+                } else {
+                    fabDownload.show()
+                    fabDownload.setOnClickListener {
+                        viewModel.downloadContent()
+                    }
+                }
                 textInputLayoutUrl.text = searchedUrl
                 imageViewThumbnail.load(videoMetaDataEntity?.thumbnailUrl)
                 textViewTitle.text = videoMetaDataEntity?.title

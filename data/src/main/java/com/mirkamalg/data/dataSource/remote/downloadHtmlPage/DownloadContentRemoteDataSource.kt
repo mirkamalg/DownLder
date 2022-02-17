@@ -8,7 +8,7 @@ import retrofit2.http.Path
  * Created by Mirkamal Gasimov on 12.02.2022.
  */
 
-interface DownloadHtmlPageRemoteDataSource {
+interface DownloadContentRemoteDataSource {
 
     @GET("button/{type}/{id}")
     suspend fun getDownloadHtmlPage(
