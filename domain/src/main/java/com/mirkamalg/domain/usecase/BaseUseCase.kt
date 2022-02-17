@@ -1,8 +1,7 @@
 package com.mirkamalg.domain.usecase
 
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Created by Mirkamal Gasimov on 12.02.2022.
@@ -18,15 +17,14 @@ abstract class BaseUseCase<I, O>(
 
     suspend fun execute(input: I, block: RequestLifecycleBlock<O> = {}) {
         val request = Request<O>().apply(block).also { it.onStart?.invoke() }
-        try {
-            val result = withContext(coroutineContext) { onExecute(input) }
-            request.onSuccess(result)
-        } catch (e: CancellationException) {
-            request.onCancel?.invoke(e)
-        } catch (e: Throwable) {
-            request.onError?.invoke(e)
-        } finally {
-            request.onTerminate?.invoke()
+        flow {
+            emit(onExecute(input))
+        }.flowOn(coroutineContext).catch {
+            request.onError?.invoke(it)
+        }.onCompletion {
+            request.onCompletion?.invoke()
+        }.collect {
+            request.onSuccess(it)
         }
     }
 
@@ -34,7 +32,6 @@ abstract class BaseUseCase<I, O>(
         var onSuccess: (T) -> Unit = {}
         var onStart: (() -> Unit)? = null
         var onError: ((Throwable) -> Unit)? = null
-        var onCancel: ((CancellationException) -> Unit)? = null
-        var onTerminate: (() -> Unit)? = null
+        var onCompletion: (() -> Unit)? = null
     }
 }

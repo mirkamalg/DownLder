@@ -2,6 +2,7 @@ package com.mirkamalg.presentation.fragments
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.core.view.isVisible
 import coil.load
@@ -48,9 +49,11 @@ class ConversionFragment :
     }
 
     private fun FragmentConversionBinding.setListeners() {
-        textInputLayoutUrl.editText?.setOnEditorActionListener { view, _, _ ->
-            val editText = view as EditText
-            viewModel.getVideoMetaData(editText.text.toString())
+        textInputLayoutUrl.editText?.setOnEditorActionListener { view, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val editText = view as EditText
+                viewModel.getVideoMetaData(editText.text.toString())
+            }
             false
         }
         fabDownload.setOnClickListener {

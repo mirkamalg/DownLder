@@ -92,9 +92,9 @@ class ConversionViewModel(
 }
 
 data class ConversionState(
-    var loading: Boolean = false,
-    var videoMetaDataEntity: VideoMetaDataEntity? = null,
-    var searchedUrl: String = ""
+    val loading: Boolean = false,
+    val videoMetaDataEntity: VideoMetaDataEntity? = null,
+    val searchedUrl: String = ""
 )
 
 sealed class ConversionEffect {

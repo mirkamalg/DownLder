@@ -1,5 +1,6 @@
 package com.mirkamalg.data.di
 
+import com.mirkamalg.data.BuildConfig
 import com.mirkamalg.data.dataSource.remote.downloadHtmlPage.DownloadHtmlPageRemoteDataSource
 import com.mirkamalg.data.dataSource.remote.videoMetaData.VideoMetaDataRemoteDataSource
 import com.mirkamalg.data.repository.DownloadHtmlPageRepositoryImpl
@@ -14,7 +15,6 @@ import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.koin.android.BuildConfig
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Call
@@ -71,8 +71,8 @@ val dataModule = module {
         }
 
         builder.apply {
-            readTimeout(30, TimeUnit.SECONDS)
-            connectTimeout(30, TimeUnit.SECONDS)
+            readTimeout(10, TimeUnit.SECONDS)
+            connectTimeout(10, TimeUnit.SECONDS)
         }
 
         builder.build()
@@ -88,8 +88,8 @@ val dataModule = module {
         builder.addInterceptor(get<YoutubeApiKeyInterceptor>())
 
         builder.apply {
-            readTimeout(30, TimeUnit.SECONDS)
-            connectTimeout(30, TimeUnit.SECONDS)
+            readTimeout(10, TimeUnit.SECONDS)
+            connectTimeout(10, TimeUnit.SECONDS)
         }
 
         builder.build()

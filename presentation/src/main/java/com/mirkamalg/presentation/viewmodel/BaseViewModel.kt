@@ -60,11 +60,8 @@ abstract class BaseViewModel<S, E> : ViewModel() {
                 onSuccess = {
                     request.onSuccess(it)
                 }
-                onCancel = {
-                    request.onCancel?.invoke(it)
-                }
-                onTerminate = {
-                    request.onTerminate
+                onCompletion = {
+                    request.onCompletion
                 }
                 onError = {
                     Timber.e(it)
