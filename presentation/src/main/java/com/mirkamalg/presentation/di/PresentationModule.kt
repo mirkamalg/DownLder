@@ -14,7 +14,8 @@ val presentationModule = module {
     viewModel {
         ConversionViewModel(
             getVideoDataUseCase = get(),
-            downloadContentPageUseCase = get()
+            downloadContentPageUseCase = get(),
+            startContentDownloadUseCase = get()
         )
     }
 

@@ -6,6 +6,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.core.view.isVisible
 import coil.load
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import com.mirkamalg.domain.utils.applyToAll
 import com.mirkamalg.presentation.R
 import com.mirkamalg.presentation.databinding.FragmentConversionBinding
@@ -73,8 +75,22 @@ class ConversionFragment :
                     fabDownload.setOnClickListener(null)
                 } else {
                     fabDownload.show()
-                    fabDownload.setOnClickListener {
-                        viewModel.downloadContent()
+                    fabDownload.setOnClickListener { view ->
+                        MaterialAlertDialogBuilder(view.context).apply {
+                            setTitle(R.string.title_choose_format)
+                            setItems(
+                                ConversionUseCase.DownloadType.values()
+                                    .map {
+                                        getString(it.strId)
+                                    }.toTypedArray()
+                            ) { dialog, which ->
+                                dialog.dismiss()
+                                viewModel.downloadContent(
+                                    ConversionUseCase.DownloadType.values()[which]
+                                )
+                            }
+                            show()
+                        }
                     }
                 }
                 textInputLayoutUrl.text = searchedUrl

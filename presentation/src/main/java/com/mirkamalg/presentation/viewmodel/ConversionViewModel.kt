@@ -6,7 +6,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import com.mirkamalg.domain.utils.Regexes
-import timber.log.Timber
 
 /**
  * Created by Mirkamal Gasimov on 13.02.2022.
@@ -14,7 +13,8 @@ import timber.log.Timber
 
 class ConversionViewModel(
     private val getVideoDataUseCase: ConversionUseCase.GetVideoDataUseCase,
-    private val downloadContentPageUseCase: ConversionUseCase.DownloadContentPageUseCase
+    private val downloadContentPageUseCase: ConversionUseCase.DownloadContentPageUseCase,
+    private val startContentDownloadUseCase: ConversionUseCase.StartContentDownloadUseCase
 ) : BaseViewModel<ConversionState, ConversionEffect>() {
 
     init {
@@ -83,16 +83,25 @@ class ConversionViewModel(
         }
     }
 
-    fun downloadContent() {
+    fun downloadContent(
+        type: ConversionUseCase.DownloadType,
+    ) {
         launch(
             downloadContentPageUseCase,
             ConversionUseCase.DownloadContentPageUseCase.GetDownloadHtmlPageParams(
-                ConversionUseCase.DownloadContentPageUseCase.DownloadType.MP3,
+                type,
                 state.value?.videoMetaDataEntity?.videoId.toString()
             )
         ) {
             onSuccess = {
-                Timber.e(it.title())
+                launch(
+                    startContentDownloadUseCase,
+                    ConversionUseCase.StartContentDownloadUseCase.StartContentDownloadParams(
+                        type,
+                        it,
+                        state.value?.videoMetaDataEntity?.title.toString()
+                    )
+                )
             }
         }
     }

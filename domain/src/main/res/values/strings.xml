@@ -5,4 +5,6 @@
     <string name="err_unknown">Unknown error occurred!</string>
     <string name="err_bad_request">Bad request!</string>
     <string name="err_server">Server error occurred!</string>
+    <string name="msg_mp3">MP3</string>
+    <string name="msg_video">Video</string>
 </resources>

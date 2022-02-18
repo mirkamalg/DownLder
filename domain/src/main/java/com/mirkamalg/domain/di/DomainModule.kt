@@ -2,6 +2,7 @@ package com.mirkamalg.domain.di
 
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlin.coroutines.CoroutineContext
@@ -27,6 +28,14 @@ val domainModule = module {
         ConversionUseCase.DownloadContentPageUseCase(
             coroutineContext = get(named(IO_DISPATCHER)),
             downloadContentRepository = get()
+        )
+    }
+
+    factory {
+        ConversionUseCase.StartContentDownloadUseCase(
+            coroutineContext = get(named(IO_DISPATCHER)),
+            downloadContentRepository = get(),
+            context = androidContext()
         )
     }
 
