@@ -9,7 +9,7 @@ import com.mirkamalg.domain.exceptions.*
 import com.mirkamalg.domain.usecase.BaseUseCase
 import com.mirkamalg.domain.usecase.CommonEffect
 import com.mirkamalg.domain.usecase.RequestLifecycleBlock
-import com.mirkamalg.presentation.utils.SingleLiveEvent
+import com.mirkamalg.domain.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.SocketException

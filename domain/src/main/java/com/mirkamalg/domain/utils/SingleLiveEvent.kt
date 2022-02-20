@@ -1,4 +1,4 @@
-package com.mirkamalg.presentation.utils
+package com.mirkamalg.domain.utils
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner

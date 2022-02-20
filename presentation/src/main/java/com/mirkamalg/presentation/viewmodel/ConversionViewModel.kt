@@ -1,11 +1,18 @@
 package com.mirkamalg.presentation.viewmodel
 
 import android.content.Context
-import android.net.Uri
-import androidx.browser.customtabs.CustomTabsIntent
+import android.content.IntentFilter
+import androidx.lifecycle.LiveData
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.mirkamalg.domain.broadcast_receivers.AddToHistoryReceiver
+import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import com.mirkamalg.domain.utils.Regexes
+import com.mirkamalg.domain.utils.SingleLiveEvent
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent.inject
+import timber.log.Timber
 
 /**
  * Created by Mirkamal Gasimov on 13.02.2022.
@@ -14,12 +21,16 @@ import com.mirkamalg.domain.utils.Regexes
 class ConversionViewModel(
     private val getVideoDataUseCase: ConversionUseCase.GetVideoDataUseCase,
     private val downloadContentPageUseCase: ConversionUseCase.DownloadContentPageUseCase,
-    private val startContentDownloadUseCase: ConversionUseCase.StartContentDownloadUseCase
+    private val startContentDownloadUseCase: ConversionUseCase.StartContentDownloadUseCase,
+    private val insertNewDownloadUseCase: ConversionUseCase.InsertNewDownloadUseCase
 ) : BaseViewModel<ConversionState, ConversionEffect>() {
 
     init {
         postState(ConversionState())
     }
+
+    private val _addToHistoryTrigger = SingleLiveEvent<VideoMetaDataEntity>()
+    val addToHistoryTrigger: LiveData<VideoMetaDataEntity> = _addToHistoryTrigger
 
     fun getVideoMetaData(videoUrl: String) {
         fun postInvalidUrlEffect() = postEffect(ConversionEffect.InvalidUrl)
@@ -71,37 +82,38 @@ class ConversionViewModel(
         }
     }
 
-    fun openDownloadPage(context: Context) {
-        state.value?.searchedUrl?.let { youtubeUrl ->
-            extractVideoIdFromUrl(youtubeUrl)?.let { videoId ->
-                CustomTabsIntent.Builder().build().launchUrl(
-                    context, Uri.parse(
-                        videoIdToDownloadPageUrl(videoId)
-                    )
+    fun downloadContent(
+        type: ConversionUseCase.DownloadType,
+    ) {
+        state.value?.videoMetaDataEntity?.let {
+            launch(
+                downloadContentPageUseCase,
+                ConversionUseCase.DownloadContentPageUseCase.GetDownloadHtmlPageParams(
+                    type,
+                    state.value?.videoMetaDataEntity?.videoId.toString()
                 )
+            ) {
+                onSuccess = { document ->
+                    launch(
+                        startContentDownloadUseCase,
+                        ConversionUseCase.StartContentDownloadUseCase.StartContentDownloadParams(
+                            type,
+                            document,
+                            it
+                        )
+                    )
+                }
             }
         }
     }
 
-    fun downloadContent(
-        type: ConversionUseCase.DownloadType,
-    ) {
-        launch(
-            downloadContentPageUseCase,
-            ConversionUseCase.DownloadContentPageUseCase.GetDownloadHtmlPageParams(
-                type,
-                state.value?.videoMetaDataEntity?.videoId.toString()
-            )
-        ) {
+    fun addToHistory(entity: VideoMetaDataEntity) {
+        launch(insertNewDownloadUseCase, entity) {
             onSuccess = {
-                launch(
-                    startContentDownloadUseCase,
-                    ConversionUseCase.StartContentDownloadUseCase.StartContentDownloadParams(
-                        type,
-                        it,
-                        state.value?.videoMetaDataEntity?.title.toString()
-                    )
-                )
+                Timber.d("Inserted successfully with id = $it => $entity")
+            }
+            onError = {
+                Timber.e(it)
             }
         }
     }
@@ -111,8 +123,15 @@ class ConversionViewModel(
             it?.value?.length == 11
         }?.value
 
-    private fun videoIdToDownloadPageUrl(videoId: String) =
-        "https://api.vevioz.com/@api/button/mp3/$videoId"
+    fun startListeningForCompletedDownloads(context: Context) {
+        val receiver: AddToHistoryReceiver by inject(AddToHistoryReceiver::class.java) {
+            parametersOf(_addToHistoryTrigger)
+        }
+        LocalBroadcastManager.getInstance(context).registerReceiver(
+            receiver,
+            IntentFilter(FileDownloadCompletedReceiver.ACTION_ADD_TO_HISTORY)
+        )
+    }
 
 }
 

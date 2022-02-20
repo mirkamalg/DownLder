@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -40,6 +41,12 @@ class ConversionFragment :
         }
     override val viewModel: ConversionViewModel by viewModel()
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        context?.let { viewModel.startListeningForCompletedDownloads(it) }
+    }
+
     override fun ConversionViewModel.onObserve() {
         binding?.apply {
             state.observe(viewLifecycleOwner) {
@@ -55,6 +62,9 @@ class ConversionFragment :
                     }
                 }
             }
+            addToHistoryTrigger.observe(viewLifecycleOwner) {
+                viewModel.addToHistory(it)
+            }
         }
     }
 
@@ -65,9 +75,6 @@ class ConversionFragment :
                 viewModel.getVideoMetaData(editText.text.toString())
             }
             false
-        }
-        fabDownload.setOnClickListener {
-            viewModel.openDownloadPage(it.context)
         }
     }
 

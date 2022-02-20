@@ -6,6 +6,7 @@ import com.mirkamalg.domain.R
 import com.mirkamalg.domain.enums.MetaDataParts
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import com.mirkamalg.domain.repository.DownloadContentRepository
+import com.mirkamalg.domain.repository.DownloadHistoryRepository
 import com.mirkamalg.domain.repository.VideoMetaDataRepository
 import com.mirkamalg.domain.usecase.BaseUseCase
 import org.jsoup.nodes.Document
@@ -61,11 +62,26 @@ class ConversionUseCase {
         data class StartContentDownloadParams(
             val type: DownloadType,
             val document: Document,
-            val videoTitle: String
+            val videoData: VideoMetaDataEntity
         )
 
         override suspend fun onExecute(input: StartContentDownloadParams) {
             downloadContentRepository.startContentDownload(input, context)
+        }
+
+    }
+
+    class InsertNewDownloadUseCase(
+        coroutineContext: CoroutineContext,
+        private val downloadHistoryRepository: DownloadHistoryRepository
+    ) : BaseUseCase<VideoMetaDataEntity, Long>(coroutineContext) {
+
+        override suspend fun onExecute(input: VideoMetaDataEntity): Long {
+            input.apply {
+                return downloadHistoryRepository.insert(
+                    title, description, channel, length, thumbnailUrl, viewCount, likeCount, videoId
+                )
+            }
         }
 
     }

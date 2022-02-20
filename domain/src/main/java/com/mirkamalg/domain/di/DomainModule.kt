@@ -39,4 +39,11 @@ val domainModule = module {
         )
     }
 
+    factory {
+        ConversionUseCase.InsertNewDownloadUseCase(
+            coroutineContext = get(named(IO_DISPATCHER)),
+            downloadHistoryRepository = get()
+        )
+    }
+
 }

@@ -35,8 +35,8 @@ class DownloadContentRepositoryImpl(
         params: ConversionUseCase.StartContentDownloadUseCase.StartContentDownloadParams,
         context: Context
     ) {
-        val url = params.document.getDownloadUrl(params.type, params.videoTitle)
-        val subPath = "DownLder/${params.videoTitle}${getFileFormat(params.type)}"
+        val url = params.document.getDownloadUrl(params.type, params.videoData.title)
+        val subPath = "DownLder/${params.videoData.title}${getFileFormat(params.type)}"
         val destination = File(
             context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
             subPath
@@ -44,7 +44,7 @@ class DownloadContentRepositoryImpl(
 
         val request = DownloadManager.Request(Uri.parse(url)).apply {
             setTitle(
-                "${params.videoTitle}${getFileFormat(params.type)}"
+                "${params.videoData.title}${getFileFormat(params.type)}"
             )
             setDestinationInExternalFilesDir(
                 context,
@@ -58,7 +58,7 @@ class DownloadContentRepositoryImpl(
         val id = manager.enqueue(request)
 
         val receiver: FileDownloadCompletedReceiver by inject(clazz = FileDownloadCompletedReceiver::class.java) {
-            parametersOf(id, destination)
+            parametersOf(id, destination, params.videoData)
         }
         context.registerReceiver(
             receiver,

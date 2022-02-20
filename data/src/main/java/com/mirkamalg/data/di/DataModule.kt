@@ -1,16 +1,24 @@
 package com.mirkamalg.data.di
 
+import androidx.room.Room
 import com.mirkamalg.data.BuildConfig
+import com.mirkamalg.data.broadcast_receivers.AddToHistoryReceiverImpl
+import com.mirkamalg.data.broadcast_receivers.FileDownloadCompletedReceiverImpl
+import com.mirkamalg.data.dataSource.local.HistoryDataBase
+import com.mirkamalg.data.dataSource.local.downloadHistory.DownloadHistoryLocalDataSource
+import com.mirkamalg.data.dataSource.local.downloadHistory.DownloadHistoryLocalDataSourceImpl
 import com.mirkamalg.data.dataSource.remote.downloadHtmlPage.DownloadContentRemoteDataSource
 import com.mirkamalg.data.dataSource.remote.videoMetaData.VideoMetaDataRemoteDataSource
 import com.mirkamalg.data.repository.DownloadContentRepositoryImpl
+import com.mirkamalg.data.repository.DownloadHistoryRepositoryImpl
 import com.mirkamalg.data.repository.VideoMetaDataRepositoryImpl
 import com.mirkamalg.data.utils.DocumentCall
-import com.mirkamalg.data.utils.FileDownloadCompletedReceiverImpl
 import com.mirkamalg.data.utils.YoutubeApiKeyInterceptor
+import com.mirkamalg.domain.broadcast_receivers.AddToHistoryReceiver
 import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
 import com.mirkamalg.domain.di.IO_DISPATCHER
 import com.mirkamalg.domain.repository.DownloadContentRepository
+import com.mirkamalg.domain.repository.DownloadHistoryRepository
 import com.mirkamalg.domain.repository.VideoMetaDataRepository
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
@@ -42,6 +50,8 @@ const val RETROFIT_DOWNLOADER = "RETROFIT_DOWNLOADER"
 const val RETROFIT_YOUTUBE_DATA = "RETROFIT_YOUTUBE_DATA"
 const val OKHTTP_CLIENT_DOWNLOADER = "OKHTTP_CLIENT_DOWNLOADER"
 const val OKHTTP_CLIENT_YOUTUBE_DATA = "OKHTTP_CLIENT_YOUTUBE_DATA"
+
+const val DB_NAME = "DownLder_Database"
 
 val dataModule = module {
 
@@ -151,13 +161,36 @@ val dataModule = module {
         VideoMetaDataRepositoryImpl(get())
     }
 
+    factory<DownloadHistoryRepository> {
+        DownloadHistoryRepositoryImpl(get())
+    }
+
     factory<FileDownloadCompletedReceiver> { params ->
         FileDownloadCompletedReceiverImpl(
             coroutineContext = get(named(IO_DISPATCHER)),
             downloadId = params.get(),
             intendedFile = params.get(),
+            intendedVideo = params.get(),
             context = androidContext()
         )
+    }
+
+    factory<AddToHistoryReceiver> { params ->
+        AddToHistoryReceiverImpl(
+            addToHistoryTrigger = params.get()
+        )
+    }
+
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            HistoryDataBase::class.java,
+            DB_NAME
+        ).build()
+    }
+
+    single<DownloadHistoryLocalDataSource> {
+        DownloadHistoryLocalDataSourceImpl(get())
     }
 
 }

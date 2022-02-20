@@ -1,4 +1,4 @@
-package com.mirkamalg.data.utils
+package com.mirkamalg.data.broadcast_receivers
 
 import android.app.DownloadManager
 import android.content.ContentValues
@@ -8,8 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
+import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -28,6 +29,7 @@ class FileDownloadCompletedReceiverImpl(
     private val coroutineContext: CoroutineContext,
     private val downloadId: Long,
     private val intendedFile: File,
+    private val intendedVideo: VideoMetaDataEntity,
     private val context: Context
 ) : FileDownloadCompletedReceiver() {
 
@@ -83,7 +85,7 @@ class FileDownloadCompletedReceiverImpl(
                 cr.update(uri, values, null, null)
             }
 
-            Toast.makeText(context, "Download completed!", Toast.LENGTH_SHORT).show()
+            sendDownloadCompletedBroadcast()
         } catch (e: Exception) {
             Timber.e("Failed to copy!")
             Timber.e(e)
@@ -92,6 +94,14 @@ class FileDownloadCompletedReceiverImpl(
             file.delete()
             this.context.unregisterReceiver(this)
         }
+    }
+
+    private fun sendDownloadCompletedBroadcast() {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(
+            Intent(ACTION_ADD_TO_HISTORY).apply {
+                putExtra(EXTRA_DOWNLOADED_FILE, intendedVideo)
+            }
+        )
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
