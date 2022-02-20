@@ -2,13 +2,18 @@ package com.mirkamalg.data.repository
 
 import android.app.DownloadManager
 import android.content.Context
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Environment
 import com.mirkamalg.data.dataSource.remote.downloadHtmlPage.DownloadContentRemoteDataSource
+import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
 import com.mirkamalg.domain.repository.DownloadContentRepository
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import org.jsoup.nodes.Document
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
+import java.io.File
 import java.net.URLEncoder
 
 /**
@@ -31,6 +36,11 @@ class DownloadContentRepositoryImpl(
         context: Context
     ) {
         val url = params.document.getDownloadUrl(params.type, params.videoTitle)
+        val subPath = "DownLder/${params.videoTitle}${getFileFormat(params.type)}"
+        val destination = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+            subPath
+        )
 
         val request = DownloadManager.Request(Uri.parse(url)).apply {
             setTitle(
@@ -39,13 +49,21 @@ class DownloadContentRepositoryImpl(
             setDestinationInExternalFilesDir(
                 context,
                 Environment.DIRECTORY_DOWNLOADS,
-                "DownLder/${params.videoTitle}${getFileFormat(params.type)}"
+                subPath
             )
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         }
         val manager = context.getSystemService(DownloadManager::class.java)
         Timber.e("Enqueueing for download: $url")
-        manager.enqueue(request)
+        val id = manager.enqueue(request)
+
+        val receiver: FileDownloadCompletedReceiver by inject(clazz = FileDownloadCompletedReceiver::class.java) {
+            parametersOf(id, destination)
+        }
+        context.registerReceiver(
+            receiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
     }
 
     private fun Document.getDownloadUrl(

@@ -1,9 +1,15 @@
 package com.mirkamalg.presentation.fragments
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import coil.load
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,6 +29,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ConversionFragment :
     BaseFragment<FragmentConversionBinding, ConversionState, ConversionEffect, ConversionViewModel>() {
+
+    private var getPermission: ActivityResultLauncher<String>? = null
 
     override val onInflate: (LayoutInflater, ViewGroup?, Boolean) -> FragmentConversionBinding
         get() = FragmentConversionBinding::inflate
@@ -97,6 +105,27 @@ class ConversionFragment :
                 imageViewThumbnail.load(videoMetaDataEntity?.thumbnailUrl)
                 textViewTitle.text = videoMetaDataEntity?.title
                 textViewDescription.text = videoMetaDataEntity?.description
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        getPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        context?.let {
+            if (ActivityCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                getPermission?.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }
     }

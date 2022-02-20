@@ -6,7 +6,10 @@ import com.mirkamalg.data.dataSource.remote.videoMetaData.VideoMetaDataRemoteDat
 import com.mirkamalg.data.repository.DownloadContentRepositoryImpl
 import com.mirkamalg.data.repository.VideoMetaDataRepositoryImpl
 import com.mirkamalg.data.utils.DocumentCall
+import com.mirkamalg.data.utils.FileDownloadCompletedReceiverImpl
 import com.mirkamalg.data.utils.YoutubeApiKeyInterceptor
+import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
+import com.mirkamalg.domain.di.IO_DISPATCHER
 import com.mirkamalg.domain.repository.DownloadContentRepository
 import com.mirkamalg.domain.repository.VideoMetaDataRepository
 import com.squareup.moshi.Moshi
@@ -15,6 +18,7 @@ import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Call
@@ -145,6 +149,15 @@ val dataModule = module {
 
     factory<VideoMetaDataRepository> {
         VideoMetaDataRepositoryImpl(get())
+    }
+
+    factory<FileDownloadCompletedReceiver> { params ->
+        FileDownloadCompletedReceiverImpl(
+            coroutineContext = get(named(IO_DISPATCHER)),
+            downloadId = params.get(),
+            intendedFile = params.get(),
+            context = androidContext()
+        )
     }
 
 }
