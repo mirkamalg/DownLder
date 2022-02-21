@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.mirkamalg.domain.broadcast_receivers.AddToHistoryReceiver
 import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
-import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
+import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import com.mirkamalg.domain.utils.SingleLiveEvent
 
 /**
@@ -12,17 +12,19 @@ import com.mirkamalg.domain.utils.SingleLiveEvent
  */
 
 class AddToHistoryReceiverImpl(
-    private val addToHistoryTrigger: SingleLiveEvent<VideoMetaDataEntity>
+    private val addToHistoryTrigger: SingleLiveEvent<ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams>
 ) : AddToHistoryReceiver() {
 
     override fun onAddToHistory(
-        entity: VideoMetaDataEntity
+        entity: ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams
     ) {
         addToHistoryTrigger.postValue(entity)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        intent?.getParcelableExtra<VideoMetaDataEntity?>(FileDownloadCompletedReceiver.EXTRA_DOWNLOADED_FILE)
+        intent?.getParcelableExtra<ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams?>(
+            FileDownloadCompletedReceiver.EXTRA_DOWNLOADED_FILE
+        )
             ?.let {
                 onAddToHistory(it)
             }

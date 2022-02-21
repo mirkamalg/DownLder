@@ -1,6 +1,7 @@
 package com.mirkamalg.domain.usecase.conversion
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.annotation.StringRes
 import com.mirkamalg.domain.R
 import com.mirkamalg.domain.enums.MetaDataParts
@@ -9,6 +10,7 @@ import com.mirkamalg.domain.repository.DownloadContentRepository
 import com.mirkamalg.domain.repository.DownloadHistoryRepository
 import com.mirkamalg.domain.repository.VideoMetaDataRepository
 import com.mirkamalg.domain.usecase.BaseUseCase
+import kotlinx.parcelize.Parcelize
 import org.jsoup.nodes.Document
 import kotlin.coroutines.CoroutineContext
 
@@ -19,7 +21,11 @@ import kotlin.coroutines.CoroutineContext
 class ConversionUseCase {
 
     enum class DownloadType(val type: String, @StringRes val strId: Int) {
-        MP3("mp3", R.string.msg_mp3), VIDEO("videos", R.string.msg_video)
+        MP3("mp3", R.string.msg_mp3), VIDEO("videos", R.string.msg_video);
+
+        companion object {
+            fun from(type: String) = values().first { it.type == type }
+        }
     }
 
     class GetVideoDataUseCase(
@@ -74,12 +80,33 @@ class ConversionUseCase {
     class InsertNewDownloadUseCase(
         coroutineContext: CoroutineContext,
         private val downloadHistoryRepository: DownloadHistoryRepository
-    ) : BaseUseCase<VideoMetaDataEntity, Long>(coroutineContext) {
+    ) : BaseUseCase<InsertNewDownloadUseCase.InsertNewDownloadParams, Long>(coroutineContext) {
 
-        override suspend fun onExecute(input: VideoMetaDataEntity): Long {
+        @Parcelize
+        data class InsertNewDownloadParams(
+            val title: String,
+            val description: String,
+            val channel: String,
+            val length: String,
+            val thumbnailUrl: String,
+            val viewCount: String,
+            val likeCount: String,
+            val videoId: String,
+            val type: String
+        ) : Parcelable
+
+        override suspend fun onExecute(input: InsertNewDownloadParams): Long {
             input.apply {
                 return downloadHistoryRepository.insert(
-                    title, description, channel, length, thumbnailUrl, viewCount, likeCount, videoId
+                    title,
+                    description,
+                    channel,
+                    length,
+                    thumbnailUrl,
+                    viewCount,
+                    likeCount,
+                    videoId,
+                    type
                 )
             }
         }

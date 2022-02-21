@@ -171,6 +171,7 @@ val dataModule = module {
             downloadId = params.get(),
             intendedFile = params.get(),
             intendedVideo = params.get(),
+            type = params.get(),
             context = androidContext()
         )
     }

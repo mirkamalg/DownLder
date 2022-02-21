@@ -58,7 +58,7 @@ class DownloadContentRepositoryImpl(
         val id = manager.enqueue(request)
 
         val receiver: FileDownloadCompletedReceiver by inject(clazz = FileDownloadCompletedReceiver::class.java) {
-            parametersOf(id, destination, params.videoData)
+            parametersOf(id, destination, params.videoData, params.type.type)
         }
         context.registerReceiver(
             receiver,

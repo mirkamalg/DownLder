@@ -1,6 +1,7 @@
 package com.mirkamalg.domain.di
 
 import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
+import com.mirkamalg.domain.usecase.history.HistoryUseCase
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
@@ -41,6 +42,13 @@ val domainModule = module {
 
     factory {
         ConversionUseCase.InsertNewDownloadUseCase(
+            coroutineContext = get(named(IO_DISPATCHER)),
+            downloadHistoryRepository = get()
+        )
+    }
+
+    factory {
+        HistoryUseCase.LoadHistoryUseCase(
             coroutineContext = get(named(IO_DISPATCHER)),
             downloadHistoryRepository = get()
         )

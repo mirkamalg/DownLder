@@ -65,4 +65,7 @@ dependencies {
 
     //Jsoup
     implementation 'org.jsoup:jsoup:1.14.3'
+
+    //Swipe refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }

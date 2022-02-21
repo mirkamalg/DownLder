@@ -21,7 +21,9 @@ val presentationModule = module {
     }
 
     viewModel {
-        HistoryViewModel()
+        HistoryViewModel(
+            loadHistoryUseCase = get()
+        )
     }
 
 }

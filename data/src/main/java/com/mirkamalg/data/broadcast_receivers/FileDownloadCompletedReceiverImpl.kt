@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mirkamalg.domain.broadcast_receivers.FileDownloadCompletedReceiver
 import com.mirkamalg.domain.model.conversion.VideoMetaDataEntity
+import com.mirkamalg.domain.usecase.conversion.ConversionUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -30,6 +31,7 @@ class FileDownloadCompletedReceiverImpl(
     private val downloadId: Long,
     private val intendedFile: File,
     private val intendedVideo: VideoMetaDataEntity,
+    private val type: String,
     private val context: Context
 ) : FileDownloadCompletedReceiver() {
 
@@ -97,11 +99,26 @@ class FileDownloadCompletedReceiverImpl(
     }
 
     private fun sendDownloadCompletedBroadcast() {
-        LocalBroadcastManager.getInstance(context).sendBroadcast(
-            Intent(ACTION_ADD_TO_HISTORY).apply {
-                putExtra(EXTRA_DOWNLOADED_FILE, intendedVideo)
-            }
-        )
+        intendedVideo.apply {
+            LocalBroadcastManager.getInstance(context).sendBroadcast(
+                Intent(ACTION_ADD_TO_HISTORY).apply {
+                    putExtra(
+                        EXTRA_DOWNLOADED_FILE,
+                        ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams(
+                            title,
+                            description,
+                            channel,
+                            length,
+                            thumbnailUrl,
+                            viewCount,
+                            likeCount,
+                            videoId,
+                            this@FileDownloadCompletedReceiverImpl.type
+                        )
+                    )
+                }
+            )
+        }
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {

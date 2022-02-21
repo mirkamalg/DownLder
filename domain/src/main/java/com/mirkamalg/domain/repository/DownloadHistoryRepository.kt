@@ -1,7 +1,6 @@
 package com.mirkamalg.domain.repository
 
 import com.mirkamalg.domain.model.history.HistoryEntity
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by Mirkamal Gasimov on 20.02.2022.
@@ -9,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DownloadHistoryRepository : BaseRepository {
 
-    fun getAll(): Flow<List<HistoryEntity>>
+    fun getAll(): List<HistoryEntity>
 
     fun insert(
         title: String,
@@ -19,7 +18,8 @@ interface DownloadHistoryRepository : BaseRepository {
         thumbnailUrl: String,
         viewCount: String,
         likeCount: String,
-        videoId: String
+        videoId: String,
+        type: String
     ): Long
 
 }

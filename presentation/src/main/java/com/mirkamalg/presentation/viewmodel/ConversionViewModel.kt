@@ -29,8 +29,10 @@ class ConversionViewModel(
         postState(ConversionState())
     }
 
-    private val _addToHistoryTrigger = SingleLiveEvent<VideoMetaDataEntity>()
-    val addToHistoryTrigger: LiveData<VideoMetaDataEntity> = _addToHistoryTrigger
+    private val _addToHistoryTrigger =
+        SingleLiveEvent<ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams>()
+    val addToHistoryTrigger: LiveData<ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams> =
+        _addToHistoryTrigger
 
     fun getVideoMetaData(videoUrl: String) {
         fun postInvalidUrlEffect() = postEffect(ConversionEffect.InvalidUrl)
@@ -107,10 +109,10 @@ class ConversionViewModel(
         }
     }
 
-    fun addToHistory(entity: VideoMetaDataEntity) {
-        launch(insertNewDownloadUseCase, entity) {
+    fun addToHistory(params: ConversionUseCase.InsertNewDownloadUseCase.InsertNewDownloadParams) {
+        launch(insertNewDownloadUseCase, params) {
             onSuccess = {
-                Timber.d("Inserted successfully with id = $it => $entity")
+                Timber.d("Inserted successfully with id = $it => $params")
             }
             onError = {
                 Timber.e(it)
